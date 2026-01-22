@@ -1,3 +1,7 @@
+watch:
+  - src
+  - .trmnlp.yml
+
 # Example user-defined settings for local testing
 custom_fields:
   site: "your-goatcounter-code"
