@@ -1,0 +1,9 @@
+# Example user-defined settings for local testing
+custom_fields:
+  site: "your-goatcounter-code"
+  api_token: "your-secret-token"
+  top_stat_display: "today"      # Options: today, top_country, top_system, top_browser
+  right_section_1: "pages"       # Options: pages, referrers, countries, systems, browsers
+  right_section_2: "referrers"   # Options: pages, referrers, countries, systems, browsers
+
+#

@@ -1,0 +1,9 @@
+{% template title_bar %}
+<div class="title_bar">
+  <img class="image" src="https://static.zgo.at/logo.svg"/>
+  <span class="title">Goatcounter</span>
+  <span class="instance">
+    Updated {{ "now" | date: '%s' | plus: trmnl.user.utc_offset | date: "%H:%M" }}
+  </span>
+</div>
+{% endtemplate %}

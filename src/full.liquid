@@ -1,0 +1,297 @@
+{% assign days  = IDX_0.stats %}
+{% assign today = days | last %}
+{% assign total_visits = 0 %}
+{% assign chart_id = "chart-" | append_random %}
+{% for d in days %}
+  {% assign total_visits = total_visits | plus: d.daily %}
+{% endfor %}
+{% assign avg_daily = total_visits | divided_by: days.size %}
+
+{% assign section_1_type = trmnl.plugin_settings.custom_fields_values.right_section_1 %}
+{% assign section_2_type = trmnl.plugin_settings.custom_fields_values.right_section_2 %}
+{% assign top_stat_type = trmnl.plugin_settings.custom_fields_values.top_stat_display %}
+
+{% comment %} Find the right data for each section by checking structure {% endcomment %}
+{% if section_1_type == 'pages' %}
+  {% assign section_1_data = IDX_1 %}
+{% else %}
+  {% assign section_1_data = IDX_1 %}
+{% endif %}
+
+{% if section_2_type == 'pages' %}
+  {% assign section_2_data = IDX_2 %}
+{% else %}
+  {% assign section_2_data = IDX_2 %}
+{% endif %}
+
+{% if top_stat_type != 'today' %}
+  {% assign top_stat_data = IDX_3 %}
+{% endif %}
+
+<div class="layout layout--col gap--space-between">
+  <div class="columns">
+    <!-- Left column -->
+    <div class="column" style="flex: 2;">
+      <div class="layout layout--col gap--space-between h--full">
+        <!-- Stats at top -->
+        <div class="grid grid--cols-3 mb--5">
+          <div class="item">
+            <div class="meta"></div>
+            <div class="content">
+              <span class="value value--tnums">{{ total_visits }}</span>
+              <span class="label label--gray">Visits</span>
+            </div>
+          </div>
+          <div class="item">
+            <div class="meta"></div>
+            <div class="content">
+              <span class="value value--tnums">{{ avg_daily }}</span>
+              <span class="label label--gray">Daily Avg</span>
+            </div>
+          </div>
+          <div class="item">
+            <div class="meta"></div>
+            <div class="content">
+              {% if top_stat_type == 'today' %}
+                <span class="value value--tnums">{{ today.daily }}</span>
+                <span class="label label--gray">Today</span>
+              {% elsif top_stat_type == 'top_country' %}
+                {% assign top_item = top_stat_data.stats | first %}
+                <span class="value value--tnums" data-clamp="1">{{ top_item.id }}</span>
+                <span class="label label--gray">Top Country</span>
+              {% elsif top_stat_type == 'top_system' %}
+                {% assign top_item = top_stat_data.stats | first %}
+                {% assign display_name = top_item.name %}
+                {% if top_item.name == 'Windows' %}{% assign display_name = 'Win' %}
+                {% elsif top_item.name == 'macOS' %}{% assign display_name = 'Mac' %}
+                {% elsif top_item.name == 'Android' %}{% assign display_name = 'And' %}
+                {% elsif top_item.name == 'iOS' %}{% assign display_name = 'iOS' %}
+                {% elsif top_item.name == 'Linux' %}{% assign display_name = 'Lin' %}
+                {% elsif top_item.name == 'Chrome OS' %}{% assign display_name = 'CrOS' %}
+                {% endif %}
+                <span class="value value--tnums" data-clamp="1">{{ display_name }}</span>
+                <span class="label label--gray">Top System</span>
+              {% elsif top_stat_type == 'top_browser' %}
+                {% assign top_item = top_stat_data.stats | first %}
+                <span class="value value--tnums" data-clamp="1">{{ top_item.name }}</span>
+                <span class="label label--gray">Top Browser</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <!-- Chart -->
+        <div id="{{ chart_id }}" class="w--full mt--5"></div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="column">
+      <!-- Section 1 -->
+      {% if section_1_type == 'pages' %}
+        <span class="title">Top Pages</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.hits limit: 5 %}
+            <tr>
+              <td><span class="value value--xxsmall">{{ item.path | truncate: 25 }}</span></td>
+              <td><span class="label label--medium">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_1_type == 'referrers' %}
+        <span class="title">Top Referrers</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.stats limit: 5 %}
+            <tr>
+              <td><span class="label">{% if item.name != "" %}{{ item.name | truncate: 25 }}{% else %}Direct{% endif %}</span></td>
+              <td><span class="label" data-value-format="true">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_1_type == 'countries' %}
+        <span class="title">Top Countries</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.stats limit: 5 %}
+            <tr>
+              <td><span class="label">{{ item.name }}</span></td>
+              <td><span class="label" data-value-format="true">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_1_type == 'systems' %}
+        <span class="title">Top Systems</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.stats limit: 5 %}
+            <tr>
+              <td><span class="label">{{ item.name }}</span></td>
+              <td><span class="label" data-value-format="true">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_1_type == 'browsers' %}
+        <span class="title">Top Browsers</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.stats limit: 5 %}
+            <tr>
+              <td><span class="label">{{ item.name | truncate: 20 }}</span></td>
+              <td><span class="label" data-value-format="true">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+
+      <!-- Section 2 -->
+      {% if section_2_type == 'pages' %}
+        <span class="title">Top Pages</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_2_data.hits limit: 5 %}
+            <tr>
+              <td><span class="value value--xxsmall">{{ item.path | truncate: 25 }}</span></td>
+              <td><span class="label label--medium">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_2_type == 'referrers' %}
+        <span class="title">Top Referrers</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_2_data.stats limit: 5 %}
+            <tr>
+              <td><span class="label">{% if item.name != "" %}{{ item.name | truncate: 25 }}{% else %}Direct{% endif %}</span></td>
+              <td><span class="label" data-value-format="true">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_2_type == 'countries' %}
+        <span class="title">Top Countries</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_2_data.stats limit: 5 %}
+            <tr>
+              <td><span class="label">{{ item.name }}</span></td>
+              <td><span class="label" data-value-format="true">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_2_type == 'systems' %}
+        <span class="title">Top Systems</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_2_data.stats limit: 5 %}
+            <tr>
+              <td><span class="label">{{ item.name }}</span></td>
+              <td><span class="label" data-value-format="true">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_2_type == 'browsers' %}
+        <span class="title">Top Browsers</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_2_data.stats limit: 5 %}
+            <tr>
+              <td><span class="label">{{ item.name | truncate: 20 }}</span></td>
+              <td><span class="label" data-value-format="true">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% render "title_bar" %}
+
+
+<script src="https://usetrmnl.com/js/highcharts/12.3.0/highcharts.js"></script>
+<script src="https://usetrmnl.com/js/chartkick/5.0.1/chartkick.min.js"></script>
+
+<script type="text/javascript">
+  var data = [
+    {% for d in days %}
+      ["{{ d.day }}", {{ d.daily }}]{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ];
+
+  var createChart = function() {
+    new Chartkick["LineChart"](
+      "{{ chart_id }}",
+      data,
+      {
+        adapter: "highcharts",
+        prefix: "",
+        thousands: ",",
+        points: false,
+        colors: ["black"],
+        curve: true,
+        library: {
+          chart: {
+            height: 300
+          },
+          plotOptions: {
+            series: {
+              animation: false,
+              lineWidth: 4
+            }
+          },
+          yAxis: {
+            labels: {
+              style: {
+                fontSize: "16px",
+                color: "#000000"
+              }
+            },
+            gridLineDashStyle: "shortdot",
+            gridLineWidth: 1,
+            gridLineColor: "#000000",
+            tickAmount: 5
+          },
+          xAxis: {
+            type: "datetime",
+            labels: {
+              rotation: -45,
+              style: {
+                fontSize: "16px",
+                color: "#000000"
+              }
+            },
+            lineWidth: 0,
+            gridLineDashStyle: "dot",
+            tickWidth: 1,
+            tickLength: 0,
+            gridLineWidth: 1,
+            gridLineColor: "#000000",
+            tickPixelInterval: 120
+          },
+          credits: {
+            enabled: false
+          },
+          legend: {
+            enabled: false
+          }
+        }
+      }
+    );
+  };
+
+  if ("Chartkick" in window) {
+    createChart();
+  } else {
+    window.addEventListener("chartkick:load", createChart, true);
+  }
+</script>

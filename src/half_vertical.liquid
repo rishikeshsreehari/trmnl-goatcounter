@@ -1,0 +1,147 @@
+{% assign days  = IDX_0.stats %}
+{% assign today = days | last %}
+{% assign total_visits = 0 %}
+{% assign chart_id = "chart-" | append_random %}
+{% for d in days %}
+  {% assign total_visits = total_visits | plus: d.daily %}
+{% endfor %}
+{% assign avg_daily = total_visits | divided_by: days.size %}
+
+{% assign top_stat_type = trmnl.plugin_settings.custom_fields_values.top_stat_display %}
+
+{% comment %} IDX_3 always contains the top stat data {% endcomment %}
+{% if top_stat_type != 'today' %}
+  {% assign top_stat_data = IDX_3 %}
+{% endif %}
+
+<div class="layout layout--col gap--small h--full">
+  <!-- Stats at top -->
+  <div class="grid grid--cols-3 gap--xsmall">
+    <div class="item">
+      <div class="meta"></div>
+      <div class="content">
+        <span class="value value--small value--tnums">{{ total_visits }}</span>
+        <span class="label label--small">Visits</span>
+      </div>
+    </div>
+    <div class="item">
+      <div class="meta"></div>
+      <div class="content">
+        <span class="value value--small value--tnums">{{ avg_daily }}</span>
+        <span class="label label--small">Daily Avg</span>
+      </div>
+    </div>
+    <div class="item">
+      <div class="meta"></div>
+      <div class="content">
+        {% if top_stat_type == 'today' %}
+          <span class="value value--small value--tnums">{{ today.daily }}</span>
+          <span class="label label--small">Today</span>
+        {% elsif top_stat_type == 'top_country' %}
+          {% assign top_item = top_stat_data.stats | first %}
+          <span class="value value--small value--tnums">{{ top_item.id }}</span>
+          <span class="label label--small">Top Country</span>
+        {% elsif top_stat_type == 'top_system' %}
+          {% assign top_item = top_stat_data.stats | first %}
+          {% assign display_name = top_item.name %}
+          {% if top_item.name == 'Windows' %}{% assign display_name = 'Win' %}
+          {% elsif top_item.name == 'macOS' %}{% assign display_name = 'Mac' %}
+          {% elsif top_item.name == 'Android' %}{% assign display_name = 'And' %}
+          {% elsif top_item.name == 'iOS' %}{% assign display_name = 'iOS' %}
+          {% elsif top_item.name == 'Linux' %}{% assign display_name = 'Lin' %}
+          {% elsif top_item.name == 'Chrome OS' %}{% assign display_name = 'CrOS' %}
+          {% endif %}
+          <span class="value value--small value--tnums">{{ display_name }}</span>
+          <span class="label label--small">Top System</span>
+        {% elsif top_stat_type == 'top_browser' %}
+          {% assign top_item = top_stat_data.stats | first %}
+          <span class="value value--small value--tnums">{{ top_item.name }}</span>
+          <span class="label label--small">Top Browser</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Chart -->
+  <div id="{{ chart_id }}" class="w--full mt--5"></div>
+</div>
+
+{% render "title_bar" %}
+
+<script src="https://usetrmnl.com/js/highcharts/12.3.0/highcharts.js"></script>
+<script src="https://usetrmnl.com/js/chartkick/5.0.1/chartkick.min.js"></script>
+
+<script type="text/javascript">
+  var data = [
+    {% for d in days %}
+      ["{{ d.day }}", {{ d.daily }}]{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ];
+
+  var createChart = function() {
+    new Chartkick["LineChart"](
+      "{{ chart_id }}",
+      data,
+      {
+        adapter: "highcharts",
+        prefix: "",
+        thousands: ",",
+        points: false,
+        colors: ["black"],
+        curve: true,
+        library: {
+          chart: {
+            height: 280
+          },
+          plotOptions: {
+            series: {
+              animation: false,
+              lineWidth: 3
+            }
+          },
+          yAxis: {
+            labels: {
+              style: {
+                fontSize: "14px",
+                color: "#000000"
+              }
+            },
+            gridLineDashStyle: "shortdot",
+            gridLineWidth: 1,
+            gridLineColor: "#000000",
+            tickAmount: 5
+          },
+          xAxis: {
+            type: "datetime",
+            labels: {
+              rotation: -45,
+              style: {
+                fontSize: "14px",
+                color: "#000000"
+              }
+            },
+            lineWidth: 0,
+            gridLineDashStyle: "dot",
+            tickWidth: 1,
+            tickLength: 0,
+            gridLineWidth: 1,
+            gridLineColor: "#000000",
+            tickPixelInterval: 80
+          },
+          credits: {
+            enabled: false
+          },
+          legend: {
+            enabled: false
+          }
+        }
+      }
+    );
+  };
+
+  if ("Chartkick" in window) {
+    createChart();
+  } else {
+    window.addEventListener("chartkick:load", createChart, true);
+  }
+</script>

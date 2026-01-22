@@ -1,0 +1,137 @@
+{% assign days  = IDX_0.stats %}
+{% assign today = days | last %}
+{% assign total_visits = 0 %}
+{% for d in days %}
+  {% assign total_visits = total_visits | plus: d.daily %}
+{% endfor %}
+{% assign avg_daily = total_visits | divided_by: days.size %}
+
+{% assign section_1_type = trmnl.plugin_settings.custom_fields_values.right_section_1 %}
+{% assign top_stat_type = trmnl.plugin_settings.custom_fields_values.top_stat_display %}
+
+{% comment %} All layouts get all data: IDX_1=r1, IDX_2=r2, IDX_3=top_stat {% endcomment %}
+{% assign section_1_data = IDX_1 %}
+
+{% if top_stat_type != 'today' %}
+  {% assign top_stat_data = IDX_3 %}
+{% endif %}
+
+<div class="layout layout--col h--full">
+  <div class="columns">
+    <!-- Left column: 3 stat tiles (smaller) -->
+    <div class="column" style="flex: 1;">
+      <div class="grid grid--cols-1 gap--small">
+        <div class="item">
+          <div class="meta"></div>
+          <div class="content">
+            <span class="value value--small value--tnums">{{ total_visits }}</span>
+            <span class="label label--small">Total Visits</span>
+          </div>
+        </div>
+        <div class="item">
+          <div class="meta"></div>
+          <div class="content">
+            <span class="value value--small value--tnums">{{ avg_daily }}</span>
+            <span class="label label--small">Daily Avg</span>
+          </div>
+        </div>
+        <div class="item">
+          <div class="meta"></div>
+          <div class="content">
+            {% if top_stat_type == 'today' %}
+              <span class="value value--small value--tnums">{{ today.daily }}</span>
+              <span class="label label--small">Today</span>
+            {% elsif top_stat_type == 'top_country' %}
+              {% assign top_item = top_stat_data.stats | first %}
+              <span class="value value--small value--tnums">{{ top_item.id }}</span>
+              <span class="label label--small">Top Country</span>
+            {% elsif top_stat_type == 'top_system' %}
+              {% assign top_item = top_stat_data.stats | first %}
+              {% assign display_name = top_item.name %}
+              {% if top_item.name == 'Windows' %}{% assign display_name = 'Win' %}
+              {% elsif top_item.name == 'macOS' %}{% assign display_name = 'Mac' %}
+              {% elsif top_item.name == 'Android' %}{% assign display_name = 'And' %}
+              {% elsif top_item.name == 'iOS' %}{% assign display_name = 'iOS' %}
+              {% elsif top_item.name == 'Linux' %}{% assign display_name = 'Lin' %}
+              {% elsif top_item.name == 'Chrome OS' %}{% assign display_name = 'CrOS' %}
+              {% endif %}
+              <span class="value value--small value--tnums">{{ display_name }}</span>
+              <span class="label label--small">Top System</span>
+            {% elsif top_stat_type == 'top_browser' %}
+              {% assign top_item = top_stat_data.stats | first %}
+              <span class="value value--small value--tnums">{{ top_item.name }}</span>
+              <span class="label label--small">Top Browser</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: Single table (bigger) -->
+    <div class="column" style="flex: 2;">
+      {% if section_1_type == 'pages' %}
+        <span class="title title--small">Top Pages</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.hits limit: 4 %}
+            <tr>
+              <td><span class="label" data-clamp="1">{{ item.path | truncate: 30 }}</span></td>
+              <td><span class="label">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_1_type == 'referrers' %}
+        <span class="title title--small">Top Referrers</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.stats limit: 4 %}
+            <tr>
+              <td><span class="label" data-clamp="1">{% if item.name != "" %}{{ item.name | truncate: 30 }}{% else %}Direct{% endif %}</span></td>
+              <td><span class="label">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_1_type == 'countries' %}
+        <span class="title title--small">Top Countries</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.stats limit: 4 %}
+            <tr>
+              <td><span class="label">{{ item.name }}</span></td>
+              <td><span class="label">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_1_type == 'systems' %}
+        <span class="title title--small">Top Systems</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.stats limit: 4 %}
+            <tr>
+              <td><span class="label">{{ item.name }}</span></td>
+              <td><span class="label">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elsif section_1_type == 'browsers' %}
+        <span class="title title--small">Top Browsers</span>
+        <table class="table table--small" data-table-limit="true">
+          <tbody>
+            {% for item in section_1_data.stats limit: 5 %}
+            <tr>
+              <td><span class="label" data-clamp="1">{{ item.name | truncate: 25 }}</span></td>
+              <td><span class="label">{{ item.count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% render "title_bar" %}

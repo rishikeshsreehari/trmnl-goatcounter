@@ -1,0 +1,64 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: "https://{{ site }}.goatcounter.com/api/v0/stats/total\r\n{% assign section_1 = trmnl.plugin_settings.custom_fields_values.right_section_1 %}{% if section_1 == 'pages' %}https://{{ site }}.goatcounter.com/api/v0/stats/hits{% elsif section_1 == 'referrers' %}https://{{ site }}.goatcounter.com/api/v0/stats/toprefs{% elsif section_1 == 'countries' %}https://{{ site }}.goatcounter.com/api/v0/stats/locations{% elsif section_1 == 'systems' %}https://{{ site }}.goatcounter.com/api/v0/stats/systems{% elsif section_1 == 'browsers' %}https://{{ site }}.goatcounter.com/api/v0/stats/browsers{% endif %}\r\n{% assign section_2 = trmnl.plugin_settings.custom_fields_values.right_section_2 %}{% if section_2 == 'pages' %}https://{{ site }}.goatcounter.com/api/v0/stats/hits{% elsif section_2 == 'referrers' %}https://{{ site }}.goatcounter.com/api/v0/stats/toprefs{% elsif section_2 == 'countries' %}https://{{ site }}.goatcounter.com/api/v0/stats/locations{% elsif section_2 == 'systems' %}https://{{ site }}.goatcounter.com/api/v0/stats/systems{% elsif section_2 == 'browsers' %}https://{{ site }}.goatcounter.com/api/v0/stats/browsers{% endif %}\r\n{% assign top_stat = trmnl.plugin_settings.custom_fields_values.top_stat_display %}{% if top_stat == 'top_country' %}https://{{ site }}.goatcounter.com/api/v0/stats/locations{% elsif top_stat == 'top_system' %}https://{{ site }}.goatcounter.com/api/v0/stats/systems{% elsif top_stat == 'top_browser' %}https://{{ site }}.goatcounter.com/api/v0/stats/browsers{% endif %}"
+polling_headers: Authorization=Bearer {{ api_token }}&Content-Type=application/json
+polling_body: ''
+id: 228787
+custom_fields:
+- keyname: plugin_info
+  name: About This Plugin
+  field_type: author_bio
+  category: analytics
+  description: "Display your GoatCounter web analytics on your TRMNL screen. \nFor bugs, features, or requests, please email me or raise an issue on GitHub. Contributions are welcome!\n"
+  github_url: https://github.com/rishikeshsreehari/trmnl-goatcounter
+  learn_more_url: https://rishikeshs.com
+  email_address: hello@rishikeshs.com
+- keyname: site
+  field_type: string
+  name: Site Code / Domain
+  description: Your GoatCounter site identifier.
+  placeholder: rishikeshs
+  help_text: If your dashboard is at rishikeshs.goatcounter.com, enter 'rishikeshs'.
+- keyname: api_token
+  field_type: password
+  name: API Token
+  description: Generate this in your GoatCounter settings.
+  help_text: 'Navigate to: <strong>https://[your-site-code].goatcounter.com/user/api</strong> to create a token.'
+- keyname: top_stat_display
+  field_type: select
+  name: Top Right Stat (3rd metric)
+  description: Choose what to display as the third stat
+  options:
+  - Today's Visits: today
+  - Top Country: top_country
+  - Top System: top_system
+  - Top Browser: top_browser
+  default: today
+- keyname: right_section_1
+  field_type: select
+  name: Right Section - Top Slot
+  description: Choose what to display in the first section
+  options:
+  - Top Pages: pages
+  - Top Referrers: referrers
+  - Top Countries: countries
+  - Top Systems: systems
+  - Top Browsers: browsers
+  default: pages
+- keyname: right_section_2
+  field_type: select
+  name: Right Section - Bottom Slot
+  description: Choose what to display in the second section
+  options:
+  - Top Pages: pages
+  - Top Referrers: referrers
+  - Top Countries: countries
+  - Top Systems: systems
+  - Top Browsers: browsers
+  default: referrers
+name: GoatCounter
+refresh_interval: 15
