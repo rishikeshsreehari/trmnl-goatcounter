@@ -3,7 +3,7 @@
 Display your [Goatcounter](https://goatcounter.com) web analytics on your TRMNL e-ink device. 
 GoatCounter is an open-source, privacy-conscious web analytics platform that provides meaningful statistics without tracking personal data or using cookies—making it the perfect companion for a minimalist e-ink display.
 
-<img width="1392" height="856" alt="image" src="https://github.com/user-attachments/assets/52742907-2e24-4910-beae-a0d7f8d16e68" />
+<img width="1392" height="856" alt="image" src="https://github.com/user-attachments/assets/9418142e-b65a-492e-88d8-4bf29d85a916" />
 
 
 ## Features
